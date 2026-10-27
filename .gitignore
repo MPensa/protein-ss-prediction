@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.py[cod]
+.vscode/
+.env
+
+# Dataset: keep only documentation and placeholder
+data/*
+!data/.gitkeep
+!data/dataset_readme.txt
+
+# Model checkpoints
+outputs/checkpoints/
+*.pt
+*.pth
+
+# Reports
+reports/*
+!reports/.gitkeep

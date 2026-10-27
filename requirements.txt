@@ -1,0 +1,12 @@
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+tqdm
+pyyaml
+pytest
+jupyter
+torch
+fastapi
+uvicorn
