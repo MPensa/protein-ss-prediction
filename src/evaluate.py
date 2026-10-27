@@ -1,20 +1,15 @@
+
 """
-Evaluate a trained checkpoint and report Q8 accuracy, F1 scores and the
-confusion matrix.
+Evaluate a trained model on the validation split or CB513 test set.
 
-Two splits are available:
-- ``val``:  the validation split of CULLPDB (same seed as in training).
-- ``test``: CB513, reserved for the FINAL evaluation. Do not use it to choose
-  hyperparameters or to compare variants of the model during development.
+Save Q8 metrics, confusion matrices and qualitative predictions under
+outputs/. Use CB513 only for final evaluation, not model selection.
 
-Outputs are saved in ``outputs/``: a JSON file with the metrics (used later for
-the baseline vs proposed comparison) and a PNG with the confusion matrix.
-
-Usage (from the project root)
------------------------------
+Usage:
     python -m src.evaluate --split val
     python -m src.evaluate --split test
 """
+
 
 import argparse
 import json
@@ -37,6 +32,7 @@ from src.models import MODELS
 from src.train import BATCH_SIZE, CHECKPOINT_DIR, VALIDATION_FRACTION
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+from matplotlib.patches import Patch
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "outputs"
@@ -143,8 +139,6 @@ def plot_qualitative(
         )
         axes[2].set_xticks(tick_positions)
         axes[2].set_xticklabels(tick_positions + 1)
-
-        from matplotlib.patches import Patch
 
         class_legend = [
             Patch(facecolor=class_colors[i], label=class_names[i])

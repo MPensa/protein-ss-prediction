@@ -1,22 +1,12 @@
-"""
-Evaluation metrics for per-residue Q8 secondary structure prediction.
 
-All metrics are computed on real residues only: positions whose true label is
-``PAD_LABEL`` (padding) are discarded before counting. Otherwise the score would
-be inflated, since about 70% of the positions in the dataset are padding.
-
-Metrics
--------
-- Q8 accuracy: fraction of residues classified correctly. It is the metric used
-  in the reference paper, but it is dominated by the frequent classes (H, E, L).
-- Per-class precision, recall and F1: show how each structure is handled.
-- Macro F1: unweighted mean of the per-class F1. Every class counts the same, so
-  rare classes such as I and B weigh as much as H. This is the main metric to
-  detect a model that ignores the rare classes.
-- Weighted F1: mean of the per-class F1 weighted by class frequency. It reflects
-  overall performance, like accuracy, while being more informative.
-- Confusion matrix: shows which structures are confused with each other.
 """
+Evaluation metrics for Q8 protein secondary structure prediction.
+
+Metrics are computed on real residues only, excluding positions labeled
+PAD_LABEL. Reports include accuracy, per-class precision/recall/F1,
+macro F1, weighted F1 and the confusion matrix.
+"""
+
 
 from pathlib import Path
 
@@ -29,24 +19,10 @@ from src.data import N_CLASSES, PAD_LABEL, SECONDARY_STRUCTURES
 CLASS_NAMES = SECONDARY_STRUCTURES[:N_CLASSES]
 
 
+
 def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
-    """Compute Q8 accuracy, F1 scores and the confusion matrix.
+    """Compute Q8 accuracy, F1 scores and confusion matrix, excluding padding."""
 
-    Args:
-        y_true: True labels, any shape, with ``PAD_LABEL`` on padding positions.
-        y_pred: Predicted classes (0-7), same shape as ``y_true``.
-
-    Returns:
-        A dictionary with:
-            - ``q8_accuracy``, ``macro_f1``, ``weighted_f1``: floats;
-            - ``per_class``: {class name: precision, recall, f1, support};
-            - ``confusion_matrix``: (8, 8) array of counts, rows = true class,
-              columns = predicted class.
-
-    Note:
-        A class that is never predicted gets F1 = 0 (``zero_division=0``), and
-        a class absent from ``y_true`` also counts as 0 in the macro average.
-    """
     if y_true.shape != y_pred.shape:
         raise ValueError(f"Shape mismatch: {y_true.shape} vs {y_pred.shape}")
 
@@ -99,21 +75,15 @@ def print_report(metrics: dict, title: str = "") -> None:
         )
 
 
+
 def plot_confusion_matrix(
     cm: np.ndarray,
     path: Path,
     normalize: bool = True,
     title: str = "Confusion matrix",
 ) -> None:
-    """Save the confusion matrix as a PNG image.
+    """Save a raw or row-normalized confusion matrix as a PNG."""
 
-    Args:
-        cm: (8, 8) confusion matrix of counts.
-        path: Output file path.
-        normalize: If True, show row-normalized values, so that rare classes
-            remain readable; otherwise show raw counts.
-        title: Plot title.
-    """
     values = normalize_confusion_matrix(cm) if normalize else cm
 
     fig, ax = plt.subplots(figsize=(7, 6))
@@ -127,7 +97,6 @@ def plot_confusion_matrix(
     ax.set_ylabel("True")
     ax.set_title(title)
 
-    # Write the value in each cell, with a readable text color.
     threshold = values.max() / 2
     for i in range(N_CLASSES):
         for j in range(N_CLASSES):

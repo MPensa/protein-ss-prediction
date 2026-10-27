@@ -8,11 +8,11 @@ Python 3.10+.
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1          # Linux/Mac: source .venv/bin/activate
+.\.venv\Scripts\Activate.ps1          
 python -m pip install -r requirements.txt
 ```
-
-Download the dataset ([MEGA link](https://mega.nz/folder/xct0XSpA#SKz72JtnSAaX61QLMC_JNg)) and place these two files in `data/` (not included in the repository):
+Download the dataset [here](https://mega.nz/folder/xct0XSpA#SKz72JtnSAaX61QLMC_JNg)
+and place these two files in `data/` (not included in the repository):
 
 - `cullpdb+profile_5926_filtered.npy.gz`: training and validation.
 - `cb513+profile_split1.npy.gz`: final test.
@@ -82,7 +82,7 @@ Checkpoints are stored in `outputs/checkpoints/`. The CB513 test set should be u
 
 The proposed model improves Q8 accuracy on CB513 by 7.1 percentage points. Common classes (`H`, `E`) are predicted well, while rare classes such as `I` remain difficult, which is why macro F1 is much lower than accuracy. For reference, Zhou & Troyanskaya report 66.4% Q8 on CB513; this is not a controlled comparison (different features, data and protocol).
 
-Caveat: the baseline ran for 30 epochs, while the proposed model's training was manually interrupted after 5 epochs. The comparison is therefore not fully controlled, and the proposed model might improve further.
+**Experimental limitation:** The baseline was trained for 30 epochs, whereas training of the proposed model was manually interrupted after 5 epochs due to time constraints. Therefore, the comparison is not fully controlled, and the proposed model's performance might improve with further training.
 
 ## Usage
 
@@ -108,13 +108,10 @@ src/evaluate.py   metrics, confusion matrix, qualitative plots
 src/metrics.py    Q8 accuracy, F1, confusion matrix
 ```
 
-## Limitations and ideas for improvement
+## Limitations and Ideas for Improvement
 
-- Controlled comparison: train both models for the same number of epochs, and with several seeds to estimate variance.
-- Class imbalance: try a class-weighted loss (e.g. inverse square root of frequency) or focal loss to improve `B`, `G`, `S`, `I`.
-- Longer context: dilated convolutions, a BiLSTM/BiGRU on top of the CNN, or a small Transformer encoder.
-- Better inputs: embeddings from pretrained protein language models (ESM-2, ProtT5) instead of one-hot and profile.
-- Structured decoding: a CRF or smoothing to avoid implausible isolated predictions.
-- Evaluation: SOV score, and a homology-aware validation split (the current one is random at protein level).
-- Tuning: no systematic hyperparameter search was done, because of the time limit.
-- Not implemented: the optional REST API (FastAPI).
+- **Controlled comparison:** train both models for the same number of epochs and use multiple random seeds to assess result variability.
+- **Class imbalance:** experiment with class-weighted loss or focal loss to improve predictions for underrepresented classes.
+- **Alternative architectures:** explore Transformer-based models to capture long-range dependencies in protein sequences.
+- **Hyperparameter tuning:** perform a more systematic search of hyperparameters.
+- **Not implemented:** the optional REST API using FastAPI.

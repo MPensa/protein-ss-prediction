@@ -1,35 +1,18 @@
+
 """
-Data loading and preprocessing utilities for protein secondary structure prediction.
+Data loading and preprocessing for Q8 protein secondary structure prediction.
 
-This module prepares the CULLPDB and CB513 datasets (Zhou & Troyanskaya, ICML 2014)
-for per-residue Q8 classification.
+Prepares CULLPDB and CB513 data as:
+    X:    (N, 700, 46) float32 input features
+    y:    (N, 700)     labels 0-7; 8 denotes padding
+    mask: (N, 700)     True for real residues, False for padding
 
-Raw format
-----------
-Each file stores one row per protein, reshaped to (N_proteins, 700, 57). Sequences
-shorter than 700 residues are padded. The 57 features per position are:
+Inputs include amino acid one-hot encoding (22), terminal flags (2),
+and sequence profiles (22). Target labels and solvent accessibility are
+excluded to prevent target leakage and ensure test-time availability.
 
-    [0, 22)   amino acid one-hot (last class: NoSeq = padding)
-    [22, 31)  Q8 secondary structure one-hot (last class: NoSeq = padding)  -> target
-    [31, 33)  N- and C-terminal flags
-    [33, 35)  solvent accessibility (training only, hidden at test time)
-    [35, 57)  sequence profile (PSSM)
-
-Processed format
-----------------
-    X     (N, 700, 46)  float32  amino acids (22) + terminal flags (2) + profile (22)
-    y     (N, 700)      int      classes 0-7 (L, B, E, G, I, H, S, T); 8 marks padding
-    mask  (N, 700)      bool     True on real residues, False on padding
-
-Design choices
---------------
-- Secondary structure labels and solvent accessibility are NOT used as inputs:
-  the former would leak the target, the latter is not available at test time.
-- Padding positions are identified through the mask, which is meant to be used
-  both in the loss (ignore_index) and in the evaluation metrics.
-- The training set is split into training and validation at protein level
-  (fixed seed), so that residues of the same protein never appear in both sets.
-- CB513 is reserved for the final evaluation and never used for model selection.
+Training/validation splitting is performed at protein level. CB513 is
+reserved for final evaluation.
 
 Usage
 -----
