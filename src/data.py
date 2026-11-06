@@ -247,7 +247,6 @@ def prepare_dataset(filename: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         raise FileNotFoundError(path)
 
     raw_data = load_dataset(path)
-
     data = np.concatenate(
         [
             raw_data[:, :, 0:22],    # amino acids
@@ -347,7 +346,15 @@ def inspect_class_distribution(y: np.ndarray, mask: np.ndarray, name: str) -> np
 
 
 def main() -> None:
-    """Prepare the training data, split it and print class distributions."""
+    """Inspect CULLPDB and CB513 datasets."""
+
+    # Inspect original CULLPDB
+    inspect_dataset(TRAIN_FILE)
+
+    # Inspect original CB513
+    inspect_dataset(TEST_FILE)
+
+    # Prepare CULLPDB and split
     X, y, mask = prepare_dataset(TRAIN_FILE)
 
     (X_train, y_train, mask_train), (X_val, y_val, mask_val) = train_validation_split(
@@ -357,13 +364,10 @@ def main() -> None:
     inspect_class_distribution(y_train, mask_train, "Training set")
     inspect_class_distribution(y_val, mask_val, "Validation set")
 
-    print("\nX_train:", X_train.shape)
-    print("y_train:", y_train.shape)
-    print("mask_train:", mask_train.shape)
+    # Prepare CB513 and inspect its class distribution
+    X_test, y_test, mask_test = prepare_dataset(TEST_FILE)
 
-    print("X_val:", X_val.shape)
-    print("y_val:", y_val.shape)
-    print("mask_val:", mask_val.shape)
+    inspect_class_distribution(y_test, mask_test, "CB513 Test set")
 
 
 if __name__ == "__main__":

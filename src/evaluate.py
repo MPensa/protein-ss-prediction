@@ -6,8 +6,7 @@ Save Q8 metrics, confusion matrices and qualitative predictions under
 outputs/. Use CB513 only for final evaluation, not model selection.
 
 Usage:
-    python -m src.evaluate --split val
-    python -m src.evaluate --split test
+    python -m src.evaluate --split val/test --model baseline/proposed --checkpoint outputs/checkpoints/baseline_cnn.pt
 """
 
 
@@ -16,6 +15,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+from sklearn import metrics
 import torch
 from torch.utils.data import DataLoader
 
@@ -200,6 +200,8 @@ def main() -> None:
         OUTPUT_DIR / "figures" / f"confusion_matrix_{name}.png",
         title=f"Confusion matrix ({name}, row-normalized)",
     )
+    print("\nConfusion matrix:")
+    print(metrics["confusion_matrix"])
 
     serializable = {k: v for k, v in metrics.items() if k != "confusion_matrix"}
     serializable["confusion_matrix"] = metrics["confusion_matrix"].tolist()

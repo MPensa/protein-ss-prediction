@@ -36,7 +36,7 @@ class BaselineCNN(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Conv1d(64, n_classes, kernel_size=1),
-        )
+        ) # 4 operations applyed in sequence.
 
     def forward(self, x):
         return self.net(x)
@@ -89,7 +89,7 @@ class ResidualCNN(nn.Module):
             in_channels, hidden_channels,
             kernel_size=5, padding=2,
         )
-
+        
         self.residual_blocks = nn.ModuleList([
             ResidualBlock(hidden_channels, dropout=dropout),
             ResidualBlock(hidden_channels, dropout=dropout),
@@ -118,6 +118,8 @@ MODELS = {
 
 def make_protein(length: int, channels: int = 46) -> torch.Tensor:
     """Random (1, channels, 700) input with ``length`` real residues, then padding."""
+    if length > 700 or length < 1:
+        raise ValueError("length must be between 1 and 700")
     x = torch.zeros(1, channels, 700)
     x[0, :AA_CHANNELS, :length] = torch.eye(AA_CHANNELS)[torch.randint(0, 21, (length,))].T
     x[0, AA_CHANNELS:, :length] = torch.rand(channels - AA_CHANNELS, length)

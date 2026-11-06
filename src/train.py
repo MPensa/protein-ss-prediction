@@ -7,7 +7,7 @@ CB513 is never touched here: it is reserved for the final evaluation.
 
 Usage (from the project root)
 -----------------------------
-    python -m src.train
+    python -m src.train --model proposed 
 """
 
 from pathlib import Path
@@ -43,7 +43,7 @@ def create_dataloaders() -> tuple[DataLoader, DataLoader]:
         A tuple ``(train_loader, val_loader)``.
     """
     X, y, mask = prepare_dataset(TRAIN_FILE)
-
+   
     (X_train, y_train, _), (X_val, y_val, _) = train_validation_split(
         X, y, mask,
         validation_fraction=VALIDATION_FRACTION,
@@ -203,6 +203,7 @@ def main() -> None:
     train_loader, val_loader = create_dataloaders()
 
     model = MODELS[args.model]().to(device)
+
     criterion = nn.CrossEntropyLoss(ignore_index=PAD_LABEL)
     optimizer = torch.optim.Adam(
         model.parameters(),
